@@ -13,19 +13,5 @@ pipeline {
                 checkout scm
             }
         }
-
-        stage('Maven Build') {
-            steps {
-                sh 'mvn clean install -Dmaven.test.skip=true'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}", '.')
-                }
-            }
-        }
     }
 }
