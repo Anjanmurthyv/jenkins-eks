@@ -30,11 +30,13 @@ pipeline {
             steps {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'docker-ecr', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                        sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 670855725719.dkr.ecr.ap-south-1.amazonaws.com/testecr'
-                        sh 'docker push 670855725719.dkr.ecr.ap-south-1.amazonaws.com/testecr'
+                        def dockerImage = "${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+                        def dockerFile = "Dockerfile" // Update with your Dockerfile name and path if needed
+                        sh "docker build -t ${dockerImage} -f ${dockerFile} ." // Build Docker image
+                        sh "docker push ${dockerImage}" // Push Docker image to ECR
+                    }
                 }
             }
         }
     }
 }
-
