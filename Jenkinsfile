@@ -15,9 +15,16 @@ pipeline {
         }
 
         stage('Maven Build') {
+            environment {
+                // Define the Maven installation path
+                MAVEN_HOME = tool 'maven' // 'Maven' refers to the name given to the Maven installation in Jenkins global tool configuration
+            }
             steps {
-                // Add Maven build step here
-                sh 'clean package' // Assuming Maven is installed and available in the PATH
+                // Use Maven with the specified path
+                script {
+                    def mavenHome = env.MAVEN_HOME
+                    sh "${mavenHome}/bin/mvn clean package" // Adjust the command as per your requirements
+                }
             }
         }
     }
