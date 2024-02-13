@@ -14,26 +14,9 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Maven Build') {
             steps {
                 sh 'mvn clean install -Dmaven.test.skip=true'
             }
         }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}", '.')
-                }
-            }
-        }
-
-        stage('Run Docker Container') {
-            steps {
-                script {
-                    docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}").run("-p 8090:8080")
-                }
-            }
-        }
-    }
-}
+        
