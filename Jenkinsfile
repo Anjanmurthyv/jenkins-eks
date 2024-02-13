@@ -46,10 +46,10 @@ pipeline {
     }
 
     // Run Docker Container
-    stage('Run Docker Container') {
-        steps {
-            script {
-                docker.image("${registry}/${IMAGE_NAME}:${IMAGE_TAG}").run("-p 8090:8080")
+       stage('Run Docker Container') {
+           steps {
+               script {
+                   docker.image("${registry}/${IMAGE_NAME}:${IMAGE_TAG}").run("-p 8090:8080")
             }
         }
     }
