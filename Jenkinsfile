@@ -1,52 +1,44 @@
 pipeline {
     agent any
-
     environment {
-        DOCKER_REGISTRY = "670855725719.dkr.ecr.ap-south-1.amazonaws.com/testecr"  // Replace with your ECR registry URI
-        IMAGE_NAME = "my-docker-image"  // Replace with your Docker image name
-        IMAGE_TAG = "latest"  // Replace with your desired image tag
+        registry = "670855725719.dkr.ecr.ap-south-1.amazonaws.com/testecr"
+        MAVEN_HOME = tool 'maven' // Set up Maven tool
     }
-
+   
     stages {
-        stage('Checkout Code') {
+        stage('Cloning Git') {
             steps {
-                checkout scm
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/akannan1087/myPythonDockerRepo']]])     
             }
         }
-
+  
+        // Maven Build stage
         stage('Maven Build') {
-            environment {
-                MAVEN_HOME = tool 'maven' // 'Maven' refers to the name given to the Maven installation in Jenkins global tool configuration
-            }
             steps {
                 script {
                     def mavenHome = env.MAVEN_HOME
-                    sh "${mavenHome}/bin/mvn clean package" // Adjust the command as per your requirements
+                    sh "${mavenHome}/bin/mvn clean package" // Adjust Maven command as per your project needs
                 }
             }
         }
 
-        stage('Docker Build and Push') {
+        // Building Docker images
+        stage('Building image') {
             steps {
                 script {
-                    // Get ECR authorization token
-                    def ecrLogin = sh(
-                        script: "aws ecr get-login-password --region ap-south-1",
-                        returnStdout: true
-                    ).trim()
-
-                    // Login to Docker registry
-                    sh "docker login -u AWS -p ${ecrLogin} ${env.DOCKER_REGISTRY}"
-
-                    // Define Docker image and Dockerfile
-                    def dockerImage = "${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"
-                    def dockerFile = "Dockerfile" // Update with your Dockerfile name and path if needed
-
-                    // Build Docker image
-                    sh "docker build -t ${dockerImage} -f ${dockerFile} ."
-
-                    // Push Docker image to ECR
-                    sh "docker push ${dockerImage}"
+                    dockerImage = docker.build registry
+                }
+            }
+        }
+   
+        // Uploading Docker images into AWS ECR
+        stage('Pushing to ECR') {
+            steps {  
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'docker-acr', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 670855725719.dkr.ecr.ap-south-1.amazonaws.com/testecr'
+                        sh 'docker push 670855725719.dkr.ecr.ap-south-1.amazonaws.com/testecr'
+                    }
                 }
             }
         }
