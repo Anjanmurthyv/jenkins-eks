@@ -40,7 +40,7 @@ pipeline {
                     sh "docker build -t ${dockerImage} -f ${dockerFile} ."
                     
                     // Push Docker image to ECR
-                    sh "docker push ${dockerImage}"
+                    sh 'docker push 670855725719.dkr.ecr.ap-south-1.amazonaws.com/testecr'
                 }
             }
         }
