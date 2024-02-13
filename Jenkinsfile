@@ -2,29 +2,30 @@ pipeline {
     agent any
     environment {
         registry = "670855725719.dkr.ecr.ap-south-1.amazonaws.com/testecr"
-        MAVEN_HOME = tool 'maven' // Set up Maven tool
     }
    
     stages {
-        stage('Cloning Git') {
+        stage('Checkout Code') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/Anjanmurthyv/jenkins-eks.git']]])     
+                checkout scm
             }
         }
-  
-        // Maven Build stage
-        stage('Maven Build') {
+		
+		stage('Maven Build') {
+            environment {
+                MAVEN_HOME = tool 'maven' // 'Maven' refers to the name given to the Maven installation in Jenkins global tool configuration
+            }
             steps {
                 script {
                     def mavenHome = env.MAVEN_HOME
-                    sh "${mavenHome}/bin/mvn clean package" // Adjust Maven command as per your project needs
+                    sh "${mavenHome}/bin/mvn clean package" // Adjust the command as per your requirements
                 }
             }
         }
-
+  
         // Building Docker images
         stage('Building image') {
-            steps {
+            steps{
                 script {
                     dockerImage = docker.build registry
                 }
@@ -33,7 +34,7 @@ pipeline {
    
         // Uploading Docker images into AWS ECR
         stage('Pushing to ECR') {
-            steps {  
+            steps{  
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'docker-ecr', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                         sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 670855725719.dkr.ecr.ap-south-1.amazonaws.com/testecr'
