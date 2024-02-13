@@ -28,16 +28,6 @@ pipeline {
             }
         }
 
-        stage('Push to ECR') {
-            steps {
-                script {
-                    docker.withRegistry("${DOCKER_REGISTRY}", "ecr:ap-south-1") {
-                        docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}").push()
-                    }
-                }
-            }
-        }
-
         stage('Run Docker Container') {
             steps {
                 script {
