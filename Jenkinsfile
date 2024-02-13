@@ -13,5 +13,12 @@ pipeline {
                 checkout scm
             }
         }
+
+        stage('Maven Build') {
+            steps {
+                // Add Maven build step here
+                sh 'mvn clean package' // Assuming Maven is installed and available in the PATH
+            }
+        }
     }
 }
