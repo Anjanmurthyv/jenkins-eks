@@ -33,7 +33,8 @@ pipeline {
                         def dockerImage = "${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"
                         def dockerFile = "Dockerfile" // Update with your Dockerfile name and path if needed
                         sh "docker build -t ${dockerImage} -f ${dockerFile} ." // Build Docker image
-                        sh "docker push ${dockerImage}" // Push Docker image to ECR'
+                        sh "docker push ${dockerImage}" // Push Docker image to ECR
+                    }
                 }
             }
         }
