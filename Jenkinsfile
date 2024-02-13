@@ -41,6 +41,12 @@ pipeline {
                         sh 'docker push 670855725719.dkr.ecr.ap-south-1.amazonaws.com/testecr'
                     }
                 }
+		    
+	stage('Run Docker Container') {
+            steps {
+                script {
+                    docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}").run("-p 8090:8080")
+                }
             }
         }
     }
