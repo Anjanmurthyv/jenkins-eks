@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REGISTRY = "123456789012.dkr.ecr.us-west-2.amazonaws.com"  // Replace with your ECR registry URI
+        DOCKER_REGISTRY = "670855725719.dkr.ecr.ap-south-1.amazonaws.com/testecr"  // Replace with your ECR registry URI
         IMAGE_NAME = "my-docker-image"  // Replace with your Docker image name
         IMAGE_TAG = "latest"  // Replace with your desired image tag
     }
@@ -31,7 +31,7 @@ pipeline {
         stage('Push to ECR') {
             steps {
                 script {
-                    docker.withRegistry("${DOCKER_REGISTRY}", "ecr:us-west-2") {
+                    docker.withRegistry("${DOCKER_REGISTRY}", "ecr:ap-south-1") {
                         docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}").push()
                     }
                 }
